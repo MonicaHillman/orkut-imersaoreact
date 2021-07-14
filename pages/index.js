@@ -23,24 +23,35 @@ function ProfileSidebar(propriedades) {
 }
 
 function ProfileRelationsList(propriedades) {
-
   return (
     <ProfileRelationsBoxWrapper>
       <h2 className='smallTitle'>
         {propriedades.title} ({propriedades.items.length})
       </h2>
       <ul>
-        {/* {propriedades.items.map((username) => {
+        {propriedades.items.slice(0, 6).map((username, key) => {
           return (
-            <li>
-              <a href={`https://github.com/${username.login}.png`} key={username.login}>
-                <img src={`https://github.com/${username.login}.png`}></img>
-                <span>{username}</span>
+            <li key={key}>
+              <a href={propriedades.title == "Amigos"
+                ? `https://github.com/${username.login}.png`
+                : `/comunidades/${username.title}`}
+                key={username.login}>
+
+                <img src={propriedades.title == "Amigos"
+                  ? `https://github.com/${username.login}.png`
+                  : username.image} />
+
+                <span>{propriedades.title == "Amigos"
+                  ? username.login
+                  : username.title}
+                </span>
               </a>
             </li>
           )
-        })} */}
+        })}
       </ul>
+
+      {propriedades.items.length > 6 ? <a href="/amigos">Ver mais</a> : ""}
     </ProfileRelationsBoxWrapper>
   )
 }
@@ -65,7 +76,6 @@ export default function Home() {
       })
       .then(function (response) {
         setSeguidores(response)
-        console.log("RESPONSE", seguidores)
       })
   }, [])
 
@@ -82,7 +92,7 @@ export default function Home() {
         <div className='welcomeArea' style={{ gridArea: 'welcomeArea' }}>
           <Box>
             <h1 className="title">
-              Bem vindo (a)!
+              Bem vindo (a), Mônica!
             </h1>
             <OrkutNostalgicIconSet />
           </Box>
@@ -126,47 +136,7 @@ export default function Home() {
         <div className='profileRelationsArea' style={{ gridArea: 'profileRelationsArea' }}>
 
           <ProfileRelationsList title="Amigos" items={seguidores} />
-
-          <Box>
-            <h2 className='smallTitle'>
-              Comunidades ({comunidades.length})
-            </h2>
-
-            <ProfileRelationsBoxWrapper>
-              <ul>
-                {comunidades.map((item) => {
-                  return (
-                    <li key={item.id}>
-                      <a href={`/users/${item.title}`} key={item.title}>
-                        <img src={item.image}></img>
-                        <span>{item.title}</span>
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </ProfileRelationsBoxWrapper>
-          </Box>
-          <Box>
-            <h2 className='smallTitle'>
-              Comunidades ({friendsList.length})
-            </h2>
-
-            <ProfileRelationsBoxWrapper>
-              <ul>
-                {friendsList.map((username) => {
-                  return (
-                    <li>
-                      <a href={`https://github.com/${username}.png`} key={username}>
-                        <img src={`https://github.com/${username}.png`}></img>
-                        <span>{username}</span>
-                      </a>
-                    </li>
-                  )
-                })}
-              </ul>
-            </ProfileRelationsBoxWrapper>
-          </Box>
+          <ProfileRelationsList title="Comunidades" items={comunidades} />
 
         </div>
       </MainGrid>

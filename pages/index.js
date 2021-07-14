@@ -22,6 +22,29 @@ function ProfileSidebar(propriedades) {
   )
 }
 
+function ProfileRelationsList(propriedades) {
+
+  return (
+    <ProfileRelationsBoxWrapper>
+      <h2 className='smallTitle'>
+        {propriedades.title} ({propriedades.items.length})
+      </h2>
+      <ul>
+        {/* {propriedades.items.map((username) => {
+          return (
+            <li>
+              <a href={`https://github.com/${username.login}.png`} key={username.login}>
+                <img src={`https://github.com/${username.login}.png`}></img>
+                <span>{username}</span>
+              </a>
+            </li>
+          )
+        })} */}
+      </ul>
+    </ProfileRelationsBoxWrapper>
+  )
+}
+
 export default function Home() {
 
   const [comunidades, setComunidades] = React.useState([{
@@ -32,6 +55,20 @@ export default function Home() {
   const githubUser = 'monicahillman';
   const friendsList = ['juunegreiros', 'peas',
     'omariosouto', 'rafaballerini', 'marcobrunodev',];
+
+  const [seguidores, setSeguidores] = React.useState([]);
+
+  React.useEffect(function () {
+    fetch('https://api.github.com/users/monicahillman/followers')
+      .then(function (serverResponse) {
+        return serverResponse.json()
+      })
+      .then(function (response) {
+        setSeguidores(response)
+        console.log("RESPONSE", seguidores)
+      })
+  }, [])
+
 
   return (
     <>
@@ -88,23 +125,7 @@ export default function Home() {
 
         <div className='profileRelationsArea' style={{ gridArea: 'profileRelationsArea' }}>
 
-          <ProfileRelationsBoxWrapper>
-            <h2 className='smallTitle'>
-              Pessoas da Comunidade ({friendsList.length})
-            </h2>
-            <ul>
-              {friendsList.map((username) => {
-                return (
-                  <li>
-                    <a href={`/users/${username}`} key={username}>
-                      <img src={`https://github.com/${username}.png`}></img>
-                      <span>{username}</span>
-                    </a>
-                  </li>
-                )
-              })}
-            </ul>
-          </ProfileRelationsBoxWrapper>
+          <ProfileRelationsList title="Amigos" items={seguidores} />
 
           <Box>
             <h2 className='smallTitle'>
@@ -125,8 +146,28 @@ export default function Home() {
                 })}
               </ul>
             </ProfileRelationsBoxWrapper>
-
           </Box>
+          <Box>
+            <h2 className='smallTitle'>
+              Comunidades ({friendsList.length})
+            </h2>
+
+            <ProfileRelationsBoxWrapper>
+              <ul>
+                {friendsList.map((username) => {
+                  return (
+                    <li>
+                      <a href={`https://github.com/${username}.png`} key={username}>
+                        <img src={`https://github.com/${username}.png`}></img>
+                        <span>{username}</span>
+                      </a>
+                    </li>
+                  )
+                })}
+              </ul>
+            </ProfileRelationsBoxWrapper>
+          </Box>
+
         </div>
       </MainGrid>
     </>

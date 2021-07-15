@@ -23,6 +23,7 @@ function ProfileSidebar(propriedades) {
 }
 
 function ProfileRelationsList(propriedades) {
+
   return (
     <ProfileRelationsBoxWrapper>
       <h2 className='smallTitle'>
@@ -39,7 +40,7 @@ function ProfileRelationsList(propriedades) {
 
                 <img src={propriedades.title == "Amigos"
                   ? `https://github.com/${username.login}.png`
-                  : username.image} />
+                  : username.imageUrl} />
 
                 <span>{propriedades.title == "Amigos"
                   ? username.login
@@ -58,27 +59,43 @@ function ProfileRelationsList(propriedades) {
 
 export default function Home() {
 
-  const [comunidades, setComunidades] = React.useState([{
-    id: new Date().toISOString(),
-    title: 'Eu odeio acordar cedo',
-    image: 'https://alurakut.vercel.app/capa-comunidade-01.jpg'
-  }]);
+  const [comunidades, setComunidades] = React.useState([]);
   const githubUser = 'monicahillman';
-  const friendsList = ['juunegreiros', 'peas',
-    'omariosouto', 'rafaballerini', 'marcobrunodev',];
 
   const [seguidores, setSeguidores] = React.useState([]);
 
   React.useEffect(function () {
     fetch('https://api.github.com/users/monicahillman/followers')
-      .then(function (serverResponse) {
-        return serverResponse.json()
-      })
-      .then(function (response) {
+      .then(async function (serverResponse) {
+        const response = await serverResponse.json()
         setSeguidores(response)
       })
-  }, [])
 
+
+    const tokenReading = 'b367283e22352b13de896876693190';
+    fetch('https://graphql.datocms.com/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json',
+        'Authorization': `Bearer ${tokenReading}`,
+      },
+      body: JSON.stringify({
+        'query': `query {
+          allCommunities {
+            title
+            id
+            imageUrl
+            creatorSlug
+          }
+        }`}),
+    })
+      .then((response) => response.json())
+      .then((responseCommunities) => {
+        const handleNewCommunities = responseCommunities.data.allCommunities
+        setComunidades(handleNewCommunities)
+      })
+  }, [])
 
   return (
     <>
@@ -104,16 +121,28 @@ export default function Home() {
 
               const dataForm = new FormData(e.target);
               const comunidade = {
-                id: new Date().toISOString(),
                 title: dataForm.get('title'),
-                image: dataForm.get('image'),
+                imageUrl: dataForm.get('image'),
+                creatorSlug: githubUser
               }
 
-              const comunidadesAtualizadas =
-                [...comunidades,
-                  comunidade]
+              fetch('api/comunidades', {
+                method: 'POST',
+                headers: {
+                  'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(comunidade)
+              }).then(async (response) => {
+                const dados = await response.json();
+                const comunidade = dados.registroCriado;
 
-              setComunidades(comunidadesAtualizadas);
+                const comunidadesAtualizadas =
+                  [...comunidades,
+                    comunidade]
+
+                setComunidades(comunidadesAtualizadas);
+
+              })
             }}>
               <div>
                 <input placeholder="Qual vai ser o nome da sua comunidade?"
@@ -130,6 +159,9 @@ export default function Home() {
                 Criar comunidade
               </button>
             </form>
+          </Box>
+          <Box>
+            <h2 className="smallTitle">Depoimentos</h2>
           </Box>
         </div>
 

@@ -4,7 +4,6 @@ export default async function receiveRequest(request, response) {
 
     if (request.method == 'POST') {
 
-
         const API_TOKEN = process.env.NEXT_PUBLIC_TOKEN
         const client = new SiteClient(API_TOKEN)
 
